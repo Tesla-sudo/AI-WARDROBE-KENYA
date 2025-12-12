@@ -46,4 +46,3 @@
 - Upload Mitumba Item
 - Suggestions: Upcycling ideas, Local Tailors Map
 
-Export these to PDF/PNG and add to /docs folder.
