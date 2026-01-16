@@ -1,57 +1,99 @@
-// src/pages/Login.js
+// src/pages/Login.jsx
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
-// eslint-disable-next-line no-unused-vars
-import api  from '../api/axios';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Link,
+  Container,
+  Paper
+} from '@mui/material';
 
 export default function Login() {
-  const [email, setEmail] = useState('test@kenya.com');
-  const [password, setPassword] = useState('123456');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-      // You'll add this route in backend later, or use this dummy token for now:
-      const dummyToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzA5ZmI3Y2QwZjRkNjAwM2QxZmI3Y2QiLCJlbWFpbCI6InRlc3RAa2VueWEuY29tIiwiaWF0IjoxNzI4ODM5OTk5fQ.dummy";
-      
-      login(dummyToken);
+      await login(email, password);
       navigate('/wardrobe');
-    // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      alert('Login failed');
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '100px auto', padding: 20, fontFamily: 'Arial' }}>
-      <h2>Login to Wardrobe AI Kenya</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: 12, margin: '10px 0', fontSize: 16 }}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: 12, margin: '10px 0', fontSize: 16 }}
-          required
-        />
-        <button type="submit" style={{ width: '100%', padding: 14, background: '#1976d2', color: 'white', border: 'none', fontSize: 16 }}>
-          Login
-        </button>
-      </form>
-      <p style={{ marginTop: 20, color: '#555' }}>
-        Use: <strong>test@kenya.com</strong> + <strong>123456</strong> (or just click Login)
-      </p>
-    </div>
+    <Container maxWidth="sm">
+      <Paper elevation={6} sx={{ p: 5, mt: 8, borderRadius: 4 }}>
+        <Typography variant="h4" align="center" gutterBottom fontWeight={700}>
+          Welcome Back
+        </Typography>
+        <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 4 }}>
+          Log in to your AI Wardrobe Kenya account
+        </Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Email Address"
+            type="email"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            size="large"
+            disabled={loading}
+            sx={{ mt: 3, py: 1.5 }}
+          >
+            {loading ? 'Logging in...' : 'Log In'}
+          </Button>
+        </form>
+
+        <Box sx={{ mt: 3, textAlign: 'center' }}>
+          <Typography variant="body2">
+            Don't have an account?{' '}
+            <Link href="/register" underline="hover">
+              Sign up here
+            </Link>
+          </Typography>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
